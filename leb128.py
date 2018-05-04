@@ -7,6 +7,11 @@ from construct.core import *
 
 @singleton
 class LEB128sl(Construct):
+    """
+    Construct for signed LEB128 little endian.
+
+    _build does not work!
+    """
     def _parse(self, stream, context, path):
         acc = []
         while True:

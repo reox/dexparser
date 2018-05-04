@@ -1,5 +1,5 @@
 from construct import *
-from leb128 import LEB128sl
+from leb128 import LEB128sl, LEB128p1ul
 
 # Requires construct >= 2.9!
 
@@ -137,7 +137,7 @@ string_data_item = Struct(
 debug_info_item = Struct(
         "line_start" / VarInt,
         "parameters_size" / VarInt,
-        "parameter_names" / Array(this.parameters_size, VarInt),
+        "parameter_names" / Array(this.parameters_size, LEB128p1ul),
         "bytecode" / RepeatUntil(lambda obj,lst,ctx: obj == 0, Byte)
         )
 

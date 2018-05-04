@@ -3,6 +3,34 @@ from construct.expr import *
 from construct.version import *
 from construct.core import *
 
+@singleton
+class LEB128p1ul(Construct):
+    def _parse(self, stream, context, path):
+        acc = []
+        while True:
+            b = byte2int(stream_read(stream, 1))
+            acc.append(b & 0b01111111)
+            if not b & 0b10000000:
+                break
+        num = 0
+        for b in reversed(acc):
+            num = (num << 7) | b
+        return num - 1
+
+    def _build(self, obj, stream, context, path):
+        if not isinstance(obj, integertypes):
+            raise IntegerError("value is not an integer")
+        if obj < -1:
+            raise IntegerError("varint cannot build from negative number: %r" % (obj,))
+        x = obj + 1
+        while x > 0b01111111:
+            stream_write(stream, int2byte(0b10000000 | (x & 0b01111111)), 1)
+            x >>= 7
+        stream_write(stream, int2byte(x), 1)
+        return obj
+
+    def _emitprimitivetype(self, ksy, bitwise):
+        return "vlq_base128_le"
 
 
 @singleton
